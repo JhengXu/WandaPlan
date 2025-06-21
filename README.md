@@ -2,15 +2,14 @@
 
 <div align="center">
 
-## Understanding the Repeat Curse in Large Language Models <br> from a Feature Perspective
+## Is Your LLM-Based Multi-Agent a Reliable Real-World Planner? <br> Exploring Fraud Detection in Travel Planning
 
 
-Junchi Yao*, Shu Yang*, Jianhua Xu, Lijie Hu, Mengdi Li, Di Wang†
+Junchi Yao*, Jianhua Xu*, Tianyu Xin*, Ziyi Wang, Shenzhe Zhu, Shu Yang†, Di Wang†
 
 (*Contribute equally, †Corresponding author)
 
-[**🤗 Dataset**](https://huggingface.co/datasets/YokyYao/Diversity_Challenge) | [**📝 arxiv**](
-https://doi.org/10.48550/arXiv.2505.1655)
+[**📝 arxiv**](https://doi.org/10.48550/arXiv.2505.16557)
 
 </div>
 
