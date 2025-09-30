@@ -248,25 +248,6 @@ For details and motivation, see the paper’s metric section.
 
 ---
 
-## How to Cite
-
-If you use WandaPlan or the provided evaluation setup, please cite the paper:
-*“Is Your LLM-Based Multi-Agent a Reliable Real-World Planner? Exploring Fraud Detection in Travel Planning.”* 
-
----
-
-## License
-
-Specify your license here (e.g., MIT/Apache-2.0). Make sure third-party frameworks you use are compatible.
-
----
-
-## Acknowledgments
-
-Built on top of agent concepts and tools (e.g., AWorld) and inspired by real-world fraud patterns summarized in our paper. 
-
----
-
 ### One-Command Examples
 
 Misinformation:
