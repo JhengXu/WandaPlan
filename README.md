@@ -268,4 +268,3 @@ Multi-Round (R=4 + true-info caching + logs):
 python multi-round/main.py --model "$MODEL_NAME" --requests ./synthetic_travel_requests.json --rounds 4 --trueinfo_dir ./trueinfo --logs_dir ./logs --out ./outputs/multiround_all_results.json
 ```
 
-That’s it! Drop this README into your GitHub repo root and you’re good to go.
