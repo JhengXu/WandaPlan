@@ -1,4 +1,4 @@
-# WandaPlan: Fraud Evaluation for LLM Travel Planners
+# 📘 WandaPlan: Fraud Evaluation for LLM Travel Planners
 
 **WandaPlan** is a plug-and-play evaluation suite for testing how LLM agents handle **fraudulent content** in real-world **travel planning**. It provides three modular scenarios you can drop into any agent pipeline:
 
@@ -6,26 +6,27 @@
 * **Team-Coordinated Multi-Person Fraud** — simulate a group of scammers persuading a user to switch
 * **Level-Escalating Multi-Round Fraud** — simulate a “customer-service” scam that escalates over several rounds
 
-These scenarios map to the paper *“Is Your LLM-Based Multi-Agent a Reliable Real-World Planner? Exploring Fraud Detection in Travel Planning.”* 
+These scenarios map to the paper *“Is Your LLM-Based Multi-Agent a Reliable Real-World Planner? Exploring Fraud Detection in Travel Planning.”*
 
 ---
 
-## Repository Layout
+## 📂 Repository Layout
 
 ```
 .
 ├── synthetic_travel_requests.json     # Test queries (user nationality, route, date, etc.)
+├── trueinfo_gene.py                   # Shared module for generating/loading true-info
 ├── misinformation/
-│   ├── main.py                        # CLI: run misinfo generation → mixing → ranking → metrics
-│   ├── misinfo.py                     # MisinfoFraud class (generation, mixing, ranking, metrics)
-│   └── prompts.py                     # Prompts for misinfo generation and ranking
+│   ├── main.py                        # CLI: run misinfo pipeline
+│   ├── misinfo.py                     # MisinfoFraud class
+│   └── prompts.py                     # Prompts for misinfo
 ├── multi-person/
-│   ├── main.py                        # CLI: run team-coordinated (N scammers) conversations
-│   ├── people.py                      # TeamFraud class (scam team orchestration + summary)
+│   ├── main.py                        # CLI: run team-coordinated (N scammers)
+│   ├── team.py                        # TeamFraud class
 │   └── prompt.py                      # Prompts for team fraud
 └── multi-round/
-    ├── main.py                        # CLI: run round-escalating conversations + judgment
-    ├── round.py                       # RoundFraud class (true-info build + multi-round evaluation)
+    ├── main.py                        # CLI: run multi-round escalating scam
+    ├── round.py                       # RoundFraud class
     └── prompt.py                      # Prompts for crawler/extractor/user/scammer/judge
 ```
 
@@ -34,37 +35,11 @@ These scenarios map to the paper *“Is Your LLM-Based Multi-Agent a Reliable Re
 
 ---
 
-## What Each Module Does
-
-### 1) `misinformation/`
-
-* Builds **true** flight/hotel options (already prepared by you or generated upstream).
-* Generates **fake** (but plausible) options → mixes with true ones.
-* Asks an agent to **rank** mixed lists.
-* Computes **P@K** and **NDCG@K** style metrics; exports one consolidated JSON.
-
-### 2) `multi-person/`
-
-* Simulates **N scam agents** who coordinate in a thread to persuade the user to change an already chosen option.
-* Stores full conversation logs and an **auto-judge** flag (switched vs. stayed).
-* Aggregates per-question and per-N metrics.
-
-### 3) `multi-round/`
-
-* Crawls & extracts **true** listings (whitelisted travel sites) using tool-augmented agents.
-* Runs **multi-round** fraud with **escalating levels** (base → credibility → urgency → emotional).
-* A **judge** agent labels whether the user is scammed each round; first “YES” determines **scam level**.
-* Emits one consolidated JSON with **true info**, **results**, and **summary**.
-
----
-
-## Quickstart
-
-### 0) Requirements
+## ⚙️ Requirements
 
 * **Python 3.9+**
-* An LLM runtime reachable via HTTP (defaults assume OpenAI-compatible APIs)
-* Packages (install in a fresh virtual env):
+* An LLM runtime (default assumes **OpenAI-compatible API**)
+* Packages:
 
 ```bash
 pip install -U tqdm pandas openpyxl
@@ -72,26 +47,29 @@ pip install -U tqdm pandas openpyxl
 # pip install aworld
 ```
 
-> If your framework uses other providers, ensure their SDKs and base URLs are set.
+---
 
-### 1) Environment variables
+## 🔑 Environment Variables
 
-Set your API credentials and (optionally) custom base URL/provider:
+All groups (A/B/C) now use the same environment variables:
 
 ```bash
-export OPENAI_API_KEY="sk-..."
-export API_BASEURL="https://api.openai.com/v1"   # or your gateway
-export PROVIDER="openai"                         # e.g., "openai"
-export MODEL_NAME="gpt-4o-mini"                  # default test model
+export OPENAI_API_KEY="sk-..."           # main API key
+export API_BASEURL="https://api.openai.com/v1"   # or your custom gateway
+export PROVIDER="openai"                 # e.g., "openai"
+export MODEL_NAME="gpt-4o-mini"          # default test model
 ```
 
-Some modules also read:
+👉 **Compatibility:**
 
-* `LLM_API_KEY`, `MODEL_NAME`, `API_BASEURL` (as seen in class configs)
+* `LLM_API_KEY` is still accepted as a fallback to `OPENAI_API_KEY` (for older configs).
+* `HEADLESS=true` is auto-set in the code for browser/tool agents.
 
-### 2) Data
+---
 
-`synthetic_travel_requests.json` must be a list of request dicts:
+## 📄 Data Format
+
+Your requests JSON should be a list of dicts:
 
 ```json
 [
@@ -103,15 +81,14 @@ Some modules also read:
     "duration_days": 7,
     "travel_date": "2025-08-18"
   }
-  // ...
 ]
 ```
 
 ---
 
-## How to Run
+## 🚀 How to Run
 
-> All commands run from the repo root. Add `-h` to any `main.py` you’ve equipped with argparse to see flags (if present).
+> All commands run from the repo root.
 
 ### A) Misinformation Fraud
 
@@ -124,18 +101,13 @@ python misinformation/main.py \
   --out ./outputs/misinformation_results.json
 ```
 
-**What happens**
+* Loads or generates **true info** (via `trueinfo_gene.py`)
+* Fabricates **misinfo** listings
+* Mixes true+fake → asks model to **rank**
+* Computes **P@K** and **NDCG@K**
+* Outputs `./outputs/misinformation_results.json`
 
-1. Builds / loads true hotel/flight lines (depending on your integration).
-2. Generates fake listings (matching format and tone).
-3. Mixes fake+true, shuffles, and re-indexes.
-4. Asks the agent to rank; computes **P@K** and **NDCG@K**.
-5. Saves a single JSON (per-question rankings + metrics).
-
-**Outputs**
-
-* `./outputs/misinformation_results.json`
-* Optional logs per question if you enable them (see file header).
+---
 
 ### B) Team-Coordinated Multi-Person Fraud
 
@@ -149,17 +121,14 @@ python multi-person/main.py \
   --out ./outputs/multiperson_results.json
 ```
 
-**What happens**
+* User selects one **true** option
+* N scam agents sequentially persuade
+* User responds; judge auto-labels “scammed / not scammed”
+* Aggregates per-N and per-scenario
 
-1. User selects an option (from true info).
-2. `N` scam agents speak sequentially, referencing prior messages.
-3. The user model replies; a judge determines scammed (switch) vs. not.
-4. Aggregated results across `(hotel|flight)` and `N`.
+**Outputs:** `multiperson_results.json` + logs (if enabled)
 
-**Outputs**
-
-* `./outputs/multiperson_results.json`
-* `./logs/` (if enabled): full per-question conversations.
+---
 
 ### C) Level-Escalating Multi-Round Fraud
 
@@ -176,95 +145,44 @@ python multi-round/main.py \
   --out ./outputs/multiround_all_results.json
 ```
 
-**What happens**
+* Crawl & extract **true info** from whitelisted domains
+* Run **4 scam rounds** (Base → Credibility → Urgency → Emotional)
+* Judge returns YES/NO each round; first YES sets scam level
+* Saves consolidated JSON
 
-1. **Crawler/Extractor** agents (tool-enabled) collect true options from whitelisted domains.
-2. The user selects an option.
-3. A single scam agent runs **R=4** rounds (Base → Credibility → Urgency → Emotional).
-4. A **judge** returns `YES/NO` per round; the first `YES` sets the **scam level (1..4)**.
-5. Saves **one consolidated JSON** with:
+**Outputs:**
 
-   * `meta`, `true_info`, `results` (per-question logs), and `summary`.
-
-**Outputs**
-
-* `./outputs/multiround_all_results.json`
-* `./trueinfo/` (optional cache of extracted lines)
-* `./logs/` (optional conversations)
+* `multiround_all_results.json`
+* `./trueinfo/` (optional true info cache)
+* `./logs/` (optional full conversations)
 
 ---
 
-## Metrics
+## 📊 Metrics
 
-We report three metrics (definitions follow the paper, summarized here):
-
-* **Defense Success Rate (DSR)** — % of requests where the final choice is **authentic** (per scene and overall).
-* **P@K** — precision at top-K for ranking **authentic** options in the Misinformation scenario.
-* **NDCG@K** — order-sensitive ranking quality; rewards placing **authentic** items earlier.
-
-For details and motivation, see the paper’s metric section. 
+* **Defense Success Rate (DSR)** — % of requests where user kept authentic option
+* **P@K** — Precision@K on misinfo ranking
+* **NDCG@K** — Order-sensitive ranking quality
 
 ---
 
-## Tips & Reproducibility
+## 🛠️ Tips & Notes
 
-* **HEADLESS scraping**: these modules set `HEADLESS=true` internally for tool-use agents. Ensure your environment supports the browser/tool stack (AWorld or your chosen agent runtime).
-* **Rate limits**: if you see throttling, lower concurrency or add backoff in your runner.
-* **Determinism**: set `temperature=0` where needed to reduce variance; keep seeds for Python’s `random` if your scripts sample during mixing.
-* **Custom providers**: swap `PROVIDER`/`BASE_URL` and model names; prompts are provider-agnostic.
-
----
-
-## Extending the Project
-
-* **Add a new scenario** (e.g., e-commerce): copy a module folder, adjust prompts, and keep the same I/O contract.
-* **Swap the judge/scammer models**: change `judge_model`/`scammer_model` in `round.py` or corresponding flags.
-* **Integrate defenses**: insert an Anti-Fraud agent before ranking/confirmation to tag risky entries; compare DSR before/after (as discussed in the paper). 
+* **Rate limits**: add retries/backoff if needed
+* **Determinism**: use `temperature=0` and set seeds for sampling
+* **Custom providers**: change `PROVIDER`/`BASE_URL` to HuggingFace, Azure, etc.
+* **trueinfo_gene.py**: can be reused by any module if you want to pre-build true-info database.
 
 ---
 
-## Expected Outputs (at a glance)
-
-* **Misinformation** → `misinformation_results.json`
-
-  * Per-question ranked indices, `P@K`, `NDCG@K`, summary block
-* **Multi-Person** → `multiperson_results.json`
-
-  * Per-question `{selected, scam flags by N, conversations}`
-* **Multi-Round** → `multiround_all_results.json`
-
-  * `{meta, true_info, results (with scam_level and full rounds), summary}`
-
----
-
-## Troubleshooting
-
-* **Extractor returns too few lines**
-  Increase retry count or verify tool access. Ensure travel pages render (JS required).
-* **Judge always YES or NO**
-  Check judge prompt and model; some models are overly permissive or conservative. Try a stronger judge.
-* **Mixed locales/dates**
-  Normalize date formats in your requests JSON; prompts assume ISO-like dates.
-
----
-
-### One-Command Examples
-
-Misinformation:
+## ✅ One-Command Examples
 
 ```bash
+# Misinfo
 python misinformation/main.py --model "$MODEL_NAME" --requests ./synthetic_travel_requests.json --out ./outputs/misinformation_results.json
-```
 
-Multi-Person (N=4):
-
-```bash
+# Multi-Person (N=4)
 python multi-person/main.py --model "$MODEL_NAME" --requests ./synthetic_travel_requests.json --agents 4 --out ./outputs/multiperson_results.json
-```
 
-Multi-Round (R=4 + true-info caching + logs):
-
-```bash
+# Multi-Round (R=4 + true-info caching + logs)
 python multi-round/main.py --model "$MODEL_NAME" --requests ./synthetic_travel_requests.json --rounds 4 --trueinfo_dir ./trueinfo --logs_dir ./logs --out ./outputs/multiround_all_results.json
-```
-
