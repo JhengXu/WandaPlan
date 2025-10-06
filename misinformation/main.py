@@ -14,11 +14,6 @@ from trueinfo_gene import get_trueinfo_lines, TRUEINFO_DIRS
 INPUT_REQUESTS = "synthetic_travel_requests.json"
 OUT_JSON = "final_results.json"
 
-# Directories for trueinfo JSON files
-#   hotel -> ./trueinfo/{question_id}.json
-#   flight -> ./flight/{question_id}.json
-TRUEINFO_DIRS = TRUEINFO_DIRS  
-
 
 def load_trueinfo_lines(scenario: str, qid: str, request: dict):
     p = TRUEINFO_DIRS[scenario] / f"{qid}.json"
