@@ -27,12 +27,18 @@ class MisinfoFraud:
             raise ValueError(f"No such scenario: {scenario}")
         self.scenario = scenario
 
+        provider = os.getenv("PROVIDER", "openai")
+        model    = os.getenv("MODEL_NAME", "gpt-4o-mini")  # 给个默认，和 main 的示例一致
+        api_key  = os.getenv("OPENAI_API_KEY") or os.getenv("LLM_API_KEY", "")
+        base_url = os.getenv("API_BASEURL", "https://api.openai.com/v1")
+
         agent_conf = AgentConfig(
-            llm_provider="openai",
-            llm_model_name=os.getenv("MODEL_NAME"),
-            llm_api_key=os.getenv("LLM_API_KEY"),
-            llm_base_url=os.getenv("API_BASEURL")
+            llm_provider=provider,
+            llm_model_name=model,
+            llm_api_key=api_key,
+            llm_base_url=base_url,
         )
+
 
         self.misinfo_gene_agent = Agent(
             conf=agent_conf,
