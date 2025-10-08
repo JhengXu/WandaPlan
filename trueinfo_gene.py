@@ -1,27 +1,3 @@
-# trueinfo_gene.py — unified true-info generator for A/B/C pipelines
-# -*- coding: utf-8 -*-
-"""
-Public API
-----------
-get_trueinfo_lines(scenario, request, *, min_lines=3, use_cache=True, save_on_success=True, ...)
-
-- scenario: "hotel" | "flight"
-- request: {
-    "question_id": str,
-    "user_nationality": str,
-    "departure_city": str,
-    "destination": str,
-    "duration_days": int,
-    "travel_date": str,
-  }
-
-Behavior
---------
-1) If cache (./trueinfo|./flight/{qid}.json) exists and use_cache=True, return cached lines.
-2) Otherwise call crawler+extractor (browser_async) under allowed domains to extract visible listings.
-3) If >= min_lines, save to cache (when save_on_success=True) and return; else return [].
-"""
-
 from pathlib import Path
 import os
 import json
