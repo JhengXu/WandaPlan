@@ -1,15 +1,3 @@
-# -*- coding: utf-8 -*-
-"""
-How to run:
-
-export OPENAI_API_KEY="sk-..."
-# If you use non-default base URL or provider:
-# export API_BASEURL="https://api.openai.com/v1"
-# export PROVIDER="openai"
-
-python3 main.py
-"""
-
 import os
 from team import TeamFraud
 
@@ -49,4 +37,5 @@ def main():
 
 if __name__ == "__main__":
     main()
+
 
