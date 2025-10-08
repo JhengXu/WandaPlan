@@ -1,15 +1,3 @@
-# -*- coding: utf-8 -*-
-"""
-How to run:
-
-export OPENAI_API_KEY="sk-..."
-# If using a custom base URL/provider:
-# export API_BASEURL="https://api.openai.com/v1"
-# export PROVIDER="openai"
-
-python3 main.py
-"""
-
 import os
 from round import RoundFraud
 
