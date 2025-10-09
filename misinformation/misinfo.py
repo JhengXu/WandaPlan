@@ -27,7 +27,7 @@ class MisinfoFraud:
         self.scenario = scenario
 
         provider = os.getenv("PROVIDER", "openai")
-        model    = os.getenv("MODEL_NAME", "gpt-4o-mini")  # 给个默认，和 main 的示例一致
+        model    = os.getenv("MODEL_NAME", "gpt-4o-mini")  
         api_key  = os.getenv("OPENAI_API_KEY") or os.getenv("LLM_API_KEY", "")
         base_url = os.getenv("API_BASEURL", "https://api.openai.com/v1")
 
